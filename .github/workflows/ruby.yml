@@ -23,7 +23,9 @@ jobs:
           bundler-cache: true
 
       - name: 📦 Instalar dependências
-        run: bundle install
+        run: |
+          gem install rspec simplecov simplecov-cobertura
+          bundle install
 
       - name: 🧪 Executar testes com cobertura
         run: COVERAGE=true bundle exec rspec
