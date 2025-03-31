@@ -16,6 +16,9 @@ jobs:
       - name: 🚗 Checkout do código
         uses: actions/checkout@v4
 
+      - name: 🔎 Verificar se o Gemfile existe
+        run: ls -lah && cat Gemfile
+        
       - name: 💎 Configurar Ruby
         uses: ruby/setup-ruby@v1
         with:
