@@ -1,7 +1,7 @@
 # bml-Ruby
 
-[![Run Docker with Tests (Ruby)](https://github.com/PedroDrim/bml-ruby/actions/workflows/ruby.yml/badge.svg?branch=simpleclass)](https://github.com/PedroDrim/bml-ruby/actions/workflows/ruby.yml)
-[![Codacy Security Scan](https://github.com/PedroDrim/bml-ruby/actions/workflows/codacy.yml/badge.svg?branch=simpleclass)](https://github.com/PedroDrim/bml-ruby/actions/workflows/codacy.yml)
+[![Run Docker with Tests (Ruby)](https://github.com/PedroDrim/bml-ruby/actions/workflows/ruby.yml/badge.svg?branch=inputclass)](https://github.com/PedroDrim/bml-ruby/actions/workflows/ruby.yml)
+[![Codacy Security Scan](https://github.com/PedroDrim/bml-ruby/actions/workflows/codacy.yml/badge.svg?branch=inputclass)](https://github.com/PedroDrim/bml-ruby/actions/workflows/codacy.yml)
 
 ### Introdução
 
@@ -30,19 +30,23 @@ git clone -b <branch> https://github.com/PedroDrim/bml-ruby
 
 ```
 # Gerando build docker
-sudo docker build -t simpleclass_ruby .
+sudo docker build -t inputclass_ruby .
 
 # Executando container
-sudo docker run simpleclass_ruby
+sudo docker run inputclass_ruby
 ```
 
 4. O resultado sairá no STDOUT no seguinte formato:
 
 ```
-[START] Ruby_1000000
-[OK]Tamanho: 1000000
-[OK]Tempo: 463.715191 ms
-[END] Ruby_1000000
+[START] Ruby_data/test.csv
+[OK]Arquivo: data/test.csv
+[OK]Tempo_leitura: 0.026701 ms
+[OK]Tempo_analise: 0.006565 ms
+[OK]Max: 10.0
+[OK]Min: 1.0
+[OK]Mean: 5.5
+[END] Ruby_data/test.csv
 ```
 
 ### Garantia de Qualidade
