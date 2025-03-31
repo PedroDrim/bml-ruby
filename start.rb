@@ -1,69 +1,81 @@
-require './src/model/Table.rb'
-require './src/provider/MaxValueAnalysis.rb'
-require './src/provider/MinValueAnalysis.rb'
-require './src/provider/MeanAnalysis.rb'
-require './src/model/UserInfo.rb'
+require "./src/provider/TableReader.rb"
+require "./src/model/BenchmarkOutput.rb"
+require "./src/provider/BenchmarkMeasure.rb"
+require "./src/model/TableAnalysis.rb"
+require "./src/provider/SummaryAnalysis.rb"
+require "./src/provider/MergeSortAnalysis.rb"
+require "./src/provider/QuickSortAnalysis.rb"
+require "./src/provider/LanguageSortAnalysis.rb"
+require "./src/model/UserInfo.rb"
+require "./src/model/TimeFormat.rb"
+require "./src/model/exception/InvalidParameterException.rb"
 
-# Classe inicial do sistema
+require "json"
+
 class Start
 
-    # Método de inicialização do projeto
-    # @param args Lista de parametros obtidos via console
-    def initialize(args)
+    def initialize
 
-        fileName = getParam(args)       
+        configFile = ARGV[0]
+        properties = self.getConfig(configFile)
 
-        # Obtendo o tempo inicial de leitura em milissegundos
-        leitura_inicio = Time.now
+        input = properties["INPUT_FILENAME_LIST"]
+        output = properties["OUTPUT_FILENAME"]
 
-        # Convertendo arquivo em lista de "UserInfo"
-        table = Table.new(fileName)
+        benchmark = BenchmarkMeasure.new
 
-        # Obtendo o tempo final de leitura em milissegundos
-        leitura_fim = Time.now
+        summaryAnalysis = SummaryAnalysis.new
+        mergeSortAnalysis = MergeSortAnalysis.new
+        quickSortAnalysis = QuickSortAnalysis.new
+        languageSortAnalysis = LanguageSortAnalysis.new
 
-        list = table.userInfoList
+        for index in 0...input.size do
+            print("[START] Arquivo: #{index}\n")
+            fileName = input[index]
 
-        maxValue = MaxValueAnalysis.new
-        minValue = MinValueAnalysis.new
-        meanValue = MeanAnalysis.new
-
-        # Obtendo o tempo inicial de analise em milissegundos
-        analise_inicio = Time.now
-
-        # Realizando analises
-        max = maxValue.analysis(list)
-        min = minValue.analysis(list)
-        mean = meanValue.analysis(list)
-
-        # Obtendo o tempo final de analise em milissegundos
-        analise_fim = Time.now
-
-        # Dados de saida
-        print("[START] Ruby_#{fileName}\n")
-        print("[OK]Arquivo: #{fileName}\n")
-        print("[OK]Tempo_leitura: #{(leitura_fim - leitura_inicio)*1000.0} ms\n")
-        print("[OK]Tempo_analise: #{(analise_fim - analise_inicio)*1000.0} ms\n")
-        print("[OK]Max: #{max}\n")
-        print("[OK]Min: #{min}\n")
-        print("[OK]Mean: #{mean}\n")
-        print("[END] Ruby_#{fileName}\n")
-    end
-
-    private
-    # Método para captura e tratamento dos parametros obtidos via console
-    # @param codes Lista de parametros obtidos via console
-    # @return Tamanho de usuários á serem gerados
-    def getParam(codes)
-        if(codes.size != 1)
-            print("Parametros inválidos.\n")
-            exit(-1)
+            #==================================================
+            # Leitura dos dados
+            print("\t[LOG] Read\n")
+            benchmark.startState("Read@#{index}")
+            tableReader = TableReader.new(fileName)
+            list = tableReader.readAll
+            benchmark.endState("Read@#{index}")
+            #==================================================
+            # Analise dos dados (Summary)
+            print("\t[LOG] Summary\n")
+            benchmark.startState("SummaryAnalysis@#{index}")
+            summary = summaryAnalysis.analysis(list)
+            benchmark.endState("SummaryAnalysis@#{index}")
+            #==================================================
+            # Analise dos dados (Merge)
+            print("\t[LOG] Merge\n")
+            benchmark.startState("MergeAnalysis@#{index}")
+            merge =  mergeSortAnalysis.analysis(list)
+            benchmark.endState("MergeAnalysis@#{index}")
+            #==================================================
+            # Analise dos dados (Quick)
+            print("\t[LOG] Quick\n")
+            benchmark.startState("QuickAnalysis@#{index}")
+            quick =  quickSortAnalysis.analysis(list)
+            benchmark.endState("QuickAnalysis@#{index}")
+            #==================================================
+            # Analise dos dados (Language)
+            print("\t[LOG] Language\n")
+            benchmark.startState("LanguageAnalysis@#{index}")
+            lang = languageSortAnalysis.analysis(list)
+            benchmark.endState("LanguageAnalysis@#{index}")
+            #==================================================
+            print("[END] Arquivo: #{index}\n")
         end
-            
-        line = codes[0].to_s
-    
-        return line    
+
+        benchmark.export(output, TimeFormat::MILLISEGUNDOS)
     end
+
+    def getConfig(fileName)
+        lines = File.read(fileName)
+        return JSON.parse(lines)
+    end
+    
 end
 
-Start.new(ARGV)
+Start.new
