@@ -30,10 +30,13 @@ git clone -b <branch> https://github.com/PedroDrim/bml-ruby
 
 ```
 # Gerando build docker
-sudo docker build -t simpleclass_ruby .
+sudo docker compose build
 
 # Executando container
-sudo docker run simpleclass_ruby
+sudo docker compose up -d
+
+# Encerrando container
+sudo docker compose down -v
 ```
 
 4. O resultado sairá no STDOUT no seguinte formato:
